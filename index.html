@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense &amp; Budget Visualizer</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+
+    <!-- Storage Warning Banner -->
+    <div id="storage-warning" hidden role="alert">
+      <span>Could not load saved data. Starting fresh.</span>
+      <button type="button" id="storage-warning-close" aria-label="Dismiss warning">&times;</button>
+    </div>
+
+    <!-- Site Header / Navbar -->
+    <div id="site-header">
+      <div id="site-header-inner">
+        <div id="site-branding">
+          <span id="site-icon">&#9783;</span>
+          <span id="site-title">Expense and Budget Visualizer</span>
+        </div>
+        <div id="header-controls">
+          <!-- Dark/Light Mode Toggle (Task 5) -->
+          <button id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark/light mode">
+            <span id="theme-icon">&#9790;</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Balance Display -->
+    <header id="balance-section">
+      <div id="balance-inner">
+        <div class="balance-card">
+          <span class="balance-card-label">Total Spent</span>
+          <span id="balance-amount">$0.00</span>
+        </div>
+        <div class="balance-card" id="monthly-card">
+          <span class="balance-card-label">This Month</span>
+          <span id="monthly-amount">$0.00</span>
+        </div>
+        <div class="balance-card" id="limit-card">
+          <span class="balance-card-label">Spend Limit</span>
+          <div id="limit-display-row">
+            <span id="limit-amount-display">Not set</span>
+            <button id="edit-limit-btn" aria-label="Edit spending limit" title="Set spending limit">&#9998;</button>
+          </div>
+        </div>
+      </div>
+      <!-- Spend limit warning (Task 4) -->
+      <div id="limit-warning" hidden role="alert">
+        <span id="limit-warning-text"></span>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- Input Form -->
+      <section id="form-section">
+        <h2>Add Transaction</h2>
+        <form id="transaction-form" novalidate>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="input-name">Item Name</label>
+              <input type="text" id="input-name" name="name" placeholder="e.g. Coffee" autocomplete="off" />
+              <span id="error-name" class="error-message" role="alert"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="input-amount">Amount ($)</label>
+              <input type="number" id="input-amount" name="amount" placeholder="e.g. 4.50" min="0.01" step="0.01" />
+              <span id="error-amount" class="error-message" role="alert"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="input-category">Category</label>
+              <select id="input-category" name="category">
+                <option value="">-- Select category --</option>
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Fun">Fun</option>
+              </select>
+              <span id="error-category" class="error-message" role="alert"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="input-date">Date</label>
+              <input type="date" id="input-date" name="date" />
+              <span id="error-date" class="error-message" role="alert"></span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="submit-btn">+ Add Transaction</button>
+          </div>
+
+        </form>
+
+        <!-- Custom Category Manager (Task 1) -->
+        <div id="category-manager">
+          <button id="toggle-category-manager" type="button" aria-expanded="false">
+            &#9881; Manage Categories
+          </button>
+          <div id="category-manager-panel" hidden>
+            <div id="custom-category-form">
+              <input type="text" id="new-category-name" placeholder="New category name" maxlength="30" />
+              <input type="color" id="new-category-color" value="#8b5cf6" title="Pick category color" />
+              <button type="button" id="add-category-btn">Add</button>
+            </div>
+            <ul id="custom-category-list" aria-label="Custom categories"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Transaction List -->
+      <section id="list-section">
+        <div class="section-header">
+          <h2>Transaction History</h2>
+          <div id="list-controls">
+            <!-- Sort controls (Task 3) -->
+            <label for="sort-select" class="sr-only">Sort by</label>
+            <select id="sort-select" aria-label="Sort transactions">
+              <option value="date-desc">Newest first</option>
+              <option value="date-asc">Oldest first</option>
+              <option value="amount-desc">Amount: high to low</option>
+              <option value="amount-asc">Amount: low to high</option>
+              <option value="category-asc">Category A–Z</option>
+            </select>
+            <!-- Month filter (Task 3) -->
+            <label for="month-filter" class="sr-only">Filter by month</label>
+            <input type="month" id="month-filter" aria-label="Filter by month" title="Filter by month" />
+            <button id="clear-month-filter" type="button" aria-label="Clear month filter" title="Show all months">&#10005;</button>
+          </div>
+        </div>
+
+        <!-- Monthly summary (Task 3) -->
+        <div id="monthly-summary" hidden>
+          <span id="monthly-summary-label"></span>
+          <span id="monthly-summary-total"></span>
+        </div>
+
+        <ul id="transaction-list" aria-label="Transaction list">
+          <li class="empty-state">No transactions recorded yet.</li>
+        </ul>
+      </section>
+
+      <!-- Chart -->
+      <section id="chart-section">
+        <h2>Spending by Category</h2>
+        <canvas id="spending-chart" aria-label="Spending distribution pie chart" role="img"></canvas>
+        <p id="chart-placeholder">No data to display yet.</p>
+      </section>
+
+    </main>
+
+    <!-- Spend Limit Modal (Task 3) -->
+    <div id="limit-modal" hidden role="dialog" aria-modal="true" aria-labelledby="limit-modal-title">
+      <div id="limit-modal-inner">
+        <h3 id="limit-modal-title">Set Spending Limit</h3>
+        <p class="modal-desc">Transactions that push your total over this limit will be highlighted in red.</p>
+        <div class="form-group">
+          <label for="limit-input">Monthly Limit ($)</label>
+          <input type="number" id="limit-input" min="0.01" step="0.01" placeholder="e.g. 500.00" />
+        </div>
+        <div class="modal-actions">
+          <button id="save-limit-btn" type="button">Save Limit</button>
+          <button id="remove-limit-btn" type="button" class="btn-secondary">Remove Limit</button>
+          <button id="cancel-limit-btn" type="button" class="btn-ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div id="modal-backdrop" hidden></div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="window.chartJsLoadFailed = true;"></script>
+    <!-- App Script -->
+    <script src="js/app.js" defer></script>
+
+  </body>
+</html>
